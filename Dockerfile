@@ -7,17 +7,13 @@ FROM nginx:alpine
 RUN sed -i.bak '/user.*nginx.*/d' /etc/nginx/nginx.conf
 COPY ./nginx-custom.conf /etc/nginx/conf.d/default.conf
 
-# create user www-data (non root) and give ownership of needed folders
-RUN adduser -D www-data
+# create folders and give global access (Openshift use random UID)
 RUN mkdir -p /var/www/htdocs && \
   cp /usr/share/nginx/html/index.html /var/www/htdocs/
 RUN touch /var/run/nginx.pid && \
-  chown -R www-data:www-data /var/run/nginx.pid && \
-  chown -R www-data:www-data /var/cache/nginx && \
-  chown -R www-data:www-data /var/www/htdocs
-
-# user non root user www-data
-USER www-data
+  chmod -R a+rwx /var/run/nginx.pid && \
+  chmod -R a+rwx /var/cache/nginx && \
+  chmod -R a+rwx /var/www/htdocs
 
 EXPOSE 8080
 
